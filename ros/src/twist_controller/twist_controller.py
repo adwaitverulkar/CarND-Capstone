@@ -50,14 +50,14 @@ class Controller(object):
         self.last_time = current_time
 
         throttle = self.throttle_controller.step(vel_error, sample_time)
-        brake = 0
+        brake = 0.
 
         if linear_vel == 0. and current_vel < 0.1:
-            throttle = 0
-            brake = 400 #N*m - to hold the car in place at a traffic light. Acceleration - 1 m/s^2
+            throttle = 0.
+            brake = 700. #N*m - to hold the car in place at a traffic light. Acceleration - 1 m/s^2
 
         elif throttle < .1 and vel_error < 0:
-            throttle = 0
+            throttle = 0.
             decel = max(vel_error, self.decel_limit)
             brake = abs(decel) * self.vehicle_mass * self.wheel_radius # Torque N*m
 

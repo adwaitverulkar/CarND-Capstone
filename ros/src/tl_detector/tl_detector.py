@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import cv2
 import rospy
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Pose
@@ -13,6 +14,7 @@ import yaml
 from scipy.spatial import KDTree
 
 STATE_COUNT_THRESHOLD = 3
+TEST_MODE = True
 
 class TLDetector(object):
     def __init__(self):
@@ -122,15 +124,18 @@ class TLDetector(object):
 
         """
         #For testing, just return the light state
-        return light.state
-        # if(not self.has_image):
-        #     self.prev_light_loc = None
-        #     return False
 
-        # cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        if TEST_MODE:
+            return light.state
+        else:
+            if(not self.has_image):
+                self.prev_light_loc = None
+                return False
 
-        # #Get classification
-        # return self.light_classifier.get_classification(cv_image)
+            cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+
+            #Get classification
+            return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -142,7 +147,8 @@ class TLDetector(object):
 
         """
         closest_light = None
-        line_wp_idx = None
+        line_wp_idx = -1
+        state = TrafficLight.UNKNOWN
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
